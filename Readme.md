@@ -26,7 +26,7 @@ python setup.py install
 If you have a fasta file ```databank.fasta``` with sequences that you want to submit to SignalP Server, run:
 ```
 import signalPclient
-signalPclient.submit(databank.fasta)
+signalPclient.submit( input='databank.fasta', output='signalP.fasta' )
 ```
 
 
@@ -44,6 +44,7 @@ Other than the standard Python libraries, signalPclient only requires:
 * Anela Tosevska
 * Cheng Chen
 * Thiago Mosqueiro
+* João VD Molino
 
 
 ## License to use
