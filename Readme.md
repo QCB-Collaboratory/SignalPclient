@@ -2,7 +2,7 @@
 
 <img src="resources/qcbCollaboratory_logo.png" height="50"/>
 
-signalPclient is small Python script that automates the submission of a sequence databank to ServerP 4.1 Server, a web service that detects and predicts the cleavage points of signal peptides for Gram-positive prokaryotes, Gram-negative prokaryotes, and eukaryotes. SignalP Server is hosted by the Center for Biological Sequence Analysis at the Technical University of Denmark (DTU):
+signalPclient is small Python module that automates the submission of a sequence databank to ServerP 4.1 Server, a web service that detects and predicts the cleavage points of signal peptides for Gram-positive prokaryotes, Gram-negative prokaryotes, and eukaryotes. SignalP Server is hosted by the Center for Biological Sequence Analysis at the Technical University of Denmark (DTU):
 
 http://www.cbs.dtu.dk/services/SignalP/
 
@@ -10,6 +10,24 @@ We started developing signalPclient during the [Python Hackathon](https://github
 
 
 <img src="./resources/scheme_signalPclient.png" width="600" />
+
+
+## How to install and use
+
+If you have pip, you can install signalPclient using:
+```
+pip install git+https://github.com/thmosqueiro/signalPclient
+```
+Otherwise, you can download signalPclient and use run its setup script. To download it, simply click [here](https://github.com/thmosqueiro/signalPclient/archive/master.zip). After unzipping the file, navigate to the unzipped signalPclient directory and run:
+```
+python setup.py install
+```
+
+If you have a fasta file ```databank.fasta``` with sequences that you want to submit to SignalP Server, run:
+```
+import signalPclient
+signalPclient.submit(databank.fasta)
+```
 
 
 ## Dependencies
