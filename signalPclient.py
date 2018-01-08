@@ -1,5 +1,6 @@
 ## Importing libraries
 import sys, time, os
+import datetime
 from pyfasta import Fasta   # Interface to easily read fasta files
 import mechanicalsoup
 
@@ -28,7 +29,10 @@ class signalPclient:
         # Everything entry that is longer than the threshold below will be discarded.
         self.lineLengthThreshold = 9000
 
-
+        ## Label for temporary files
+        inputLabel    = inputFileName.split('.fasta')[0]
+        timestamp     = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+        self.tmpLabel = inputLabel[:10] + '_' + timestamp + '_'
 
         return
 
@@ -36,10 +40,13 @@ class signalPclient:
     def submit( self ):
 
         ## Parsing and filtering the input file
-        filtered_fasta = self.getFilteredFASTA( self.inputFileName )
+        self.filterFASTA( self.inputFileName )
 
         ## Submitting the filtered databank
         #self.submit2( filtered_fasta )
+
+        ## Cleaning up temporary files
+        self.cleanTempFiles()
 
         return
 
@@ -56,7 +63,7 @@ class signalPclient:
     #
     #
     #
-    def getFilteredFASTA( self ):
+    def filterFASTA( self ):
 
         protein_list    = self.getFastaArray( self.inputFileName )
         submission_list = self.generateSubmission( protein_list )
@@ -65,7 +72,7 @@ class signalPclient:
         fasta2submit = "".join( submission_list )
 
         # Saving to an external file
-        with open("tmp.fasta", "w") as tmp_fastaFile:
+        with open( self.tmpLabel + '01.fasta', 'w' ) as tmp_fastaFile:
             tmp_fastaFile.write( fasta2submit )
 
         return
@@ -190,5 +197,7 @@ class signalPclient:
 
         return
 
+    def cleanTempFiles( self ):
+        return os.system( 'rm -rf ' + self.tmpLabel + '*.fasta' )
 
 ## The end, my friend.
