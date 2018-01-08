@@ -2,7 +2,7 @@
 
 <img src="resources/qcbCollaboratory_logo.png" height="50"/>
 
-signalPclient is small Python module that automates the submission of a sequence databank to ServerP 4.1 Server, a web service that detects and predicts the cleavage points of signal peptides for Gram-positive prokaryotes, Gram-negative prokaryotes, and eukaryotes. SignalP Server is hosted by the Center for Biological Sequence Analysis at the Technical University of Denmark (DTU):
+signalPclient is small Python module that automates the submission of a sequence databank to SignalP 4.1 Server, a web service that detects and predicts the cleavage points of signal peptides for Gram-positive prokaryotes, Gram-negative prokaryotes, and eukaryotes. SignalP Server is hosted by the Center for Biological Sequence Analysis at the Technical University of Denmark (DTU):
 
 http://www.cbs.dtu.dk/services/SignalP/
 
@@ -12,11 +12,11 @@ We started developing signalPclient during the [Python Hackathon](https://github
 <img src="./resources/scheme_signalPclient.png" width="600" />
 
 
-## How to install and use
+## Quick intro: Installation and usage
 
 If you have pip, you can install signalPclient using:
 ```
-pip install git+https://github.com/thmosqueiro/signalPclient
+pip install git+https://github.com/QCB-Collaboratory/signalPclient
 ```
 Otherwise, you can download signalPclient and use run its setup script. To download it, simply click [here](https://github.com/thmosqueiro/signalPclient/archive/master.zip). After unzipping the file, navigate to the unzipped signalPclient directory and run:
 ```
@@ -26,27 +26,33 @@ python setup.py install
 If you have a fasta file ```databank.fasta``` with sequences that you want to submit to SignalP Server, run:
 ```
 import signalPclient
-signalPclient.submit( input='databank.fasta', output='signalP.fasta' )
+SPclient = signalPclient( input='databank.fasta', output='signalP.fasta' )
+SPclient.submit()
 ```
+
+
+## Questions, comments and bugs
+
+If you have questions, comments or found a bug in our script, feel free to open an issue on the [Issues Page](https://github.com/QCB-Collaboratory/SignalPclient/issues). Also, feel free to submit Pull Requests in case you have modified the script to enhance or improve it.
 
 
 ## Dependencies
 
-Other than the standard Python libraries, signalPclient only requires:
+signalPclient has minimal requirements, and works with both Python 2 or 3. Other than the standard Python libraries, signalPclient only requires:
 
 * pyfasta
-* Mechanize (Python 2) or MechanicalSoup (Python 3)
+* MechanicalSoup
 
 
 ## People involved
 
+* Thiago Mosqueiro
 * Xiaofei Lin
 * Anela Tosevska
 * Cheng Chen
-* Thiago Mosqueiro
 * João VD Molino
 
 
 ## License to use
 
-Feel free to use this Python script for free, as long as you comply with the [MIT license](./LICENSE).
+Feel free to use/share/modify/redistribute this Python script, which is shared under the [MIT license](./LICENSE).

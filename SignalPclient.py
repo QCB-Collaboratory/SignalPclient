@@ -1,22 +1,39 @@
-##
-## Usage:
-## python SignalPclient.py <File.fast>
-##
-
 ## Importing libraries
 import sys, time, math
 from pyfasta import Fasta   # Interface to easily read fasta files
-from twill import commands  # This will make possible go through the web
+import MechanicalSoup
 
 
-## Setting parameters
 
-# Threhsold on the number of proteins per files. If a file contains more than that,
-# it will be divided into smaller files.
-numProteinsPerFile = 2000
+class signalPclient:
 
-# Everything entry that is longer than the threshold below will be discarded.
-lineLengthThreshold = 9000
+    def __init__(self,
+                    input  = inputFileName,
+                    output = outputFileName):
+
+        ## Setting the input/output files
+        self.inputFileName  = inputFileName
+        self.outputFileName = outputFileName
+
+
+        ## Setting parameters
+
+        # Threhsold on the number of proteins per files. If a file contains more than that,
+        # it will be divided into smaller files.
+        self.numProteinsPerFile = 2000
+
+        # Everything entry that is longer than the threshold below will be discarded.
+        self.lineLengthThreshold = 9000
+
+        return
+
+
+
+    def submit(self):
+
+        return
+
+
 
 
 ## Get the fasta name file from the command-line
