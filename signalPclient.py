@@ -4,6 +4,9 @@ import datetime
 from pyfasta import Fasta   # Interface to easily read fasta files
 import mechanicalsoup
 
+import logging
+logging.basicConfig(format='%(asctime)s | %(levelname)s: %(message)s', filename='signalPclient.log',level=logging.DEBUG)
+logging.info('signalPclient imported.')
 
 
 class signalPclient:
@@ -33,7 +36,10 @@ class signalPclient:
         inputLabel    = inputFileName.split('.fasta')[0]
         timestamp     = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
         self.tmpLabel = inputLabel[:10] + '_' + timestamp + '_'
+        logging.info('Label for temporary files: %s' % self.tmpLabel)
 
+
+        logging.info('signalPclient object being created.')
         return
 
 
@@ -65,6 +71,8 @@ class signalPclient:
     #
     def filterFASTA( self ):
 
+        logging.info('Filtering input fasta file...')
+
         protein_list    = self.getFastaArray( self.inputFileName )
         submission_list = self.generateSubmission( protein_list )
 
@@ -72,9 +80,12 @@ class signalPclient:
         fasta2submit = "".join( submission_list )
 
         # Saving to an external file
+        logging.info('Saving filtered file to hard drive...')
         with open( self.tmpLabel + '01.fasta', 'w' ) as tmp_fastaFile:
             tmp_fastaFile.write( fasta2submit )
 
+
+        logging.info('Input fasta file filtered.')
         return
 
     #
