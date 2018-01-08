@@ -1,18 +1,18 @@
 ## Importing libraries
 import sys, time, os
 from pyfasta import Fasta   # Interface to easily read fasta files
-import MechanicalSoup
+import mechanicalsoup
 
 
 
 class signalPclient:
 
     ## URL address of the signalP Server
-    self.signalPserver_url = 'http://www.cbs.dtu.dk/services/SignalP/'
+    signalPserver_url = 'http://www.cbs.dtu.dk/services/SignalP/'
 
     def __init__(self,
-                    input  = inputFileName,
-                    output = outputFileName):
+                    inputFileName  = '',
+                    outputFileName = '' ):
 
         ## Setting the input/output files
         self.inputFileName  = inputFileName
@@ -39,7 +39,7 @@ class signalPclient:
         filtered_fasta = self.getFilteredFASTA( self.inputFileName )
 
         ## Submitting the filtered databank
-        self.submit2( filtered_fasta )
+        #self.submit2( filtered_fasta )
 
         return
 
@@ -56,16 +56,24 @@ class signalPclient:
     #
     #
     #
-    def getFilteredFASTA(self, fasta_file):
-        protein_list = get_FASTA_array(fasta_file)
-        submission_list = generate_submission(protein_list)
-        FASTA_TO_SUBMIT = "".join(submission_list)
-        return FASTA_TO_SUBMIT
+    def getFilteredFASTA( self ):
+
+        protein_list    = self.getFastaArray( self.inputFileName )
+        submission_list = self.generateSubmission( protein_list )
+
+        # Putting everything back into a single string variable
+        fasta2submit = "".join( submission_list )
+
+        # Saving to an external file
+        with open("tmp.fasta", "w") as tmp_fastaFile:
+            tmp_fastaFile.write( fasta2submit )
+
+        return
 
     #
     #This function parses fasta file into array (each protein is one element)
     #
-    def getFastaArray(fasta_file):
+    def getFastaArray(self, fasta_file):
         #parsing FASTA
         FASTA_string= open(fasta_file, 'r').read()
         #rough list of proteins
@@ -82,7 +90,7 @@ class signalPclient:
     #
     # This method generates a new file ready to be submitted.
     #
-    def generateSubmission( protein_list ):
+    def generateSubmission(self, protein_list ):
 
         #declare submission list
         submission_list = []
@@ -127,7 +135,7 @@ class signalPclient:
     ## Accessing the server and submiting the job
     ##
 
-    def submit2( generatedFile ):
+    def submit2(self, generatedFile ):
 
         ## Accessing signalP Server's home page
         # Creating a browser object
