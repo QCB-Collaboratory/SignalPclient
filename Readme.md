@@ -55,4 +55,4 @@ signalPclient has minimal requirements, and works with both Python 2 or 3. Other
 
 ## License to use
 
-Feel free to use/share/modify/redistribute this Python script, which is shared under the [MIT license](./LICENSE).
+Feel free to use/share/modify/redistribute this Python script, which is shared under the [MIT license](./LICENSE). This is a short and permissive license with conditions only requiring preservation of copyright and license notices. Licensed works, modifications, and larger works may be distributed under different terms and without source code.

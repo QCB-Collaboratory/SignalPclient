@@ -1,11 +1,14 @@
 ## Importing libraries
-import sys, time, math
+import sys, time, os
 from pyfasta import Fasta   # Interface to easily read fasta files
 import MechanicalSoup
 
 
 
 class signalPclient:
+
+    ## URL address of the signalP Server
+    self.signalPserver_url = 'http://www.cbs.dtu.dk/services/SignalP/'
 
     def __init__(self,
                     input  = inputFileName,
@@ -25,147 +28,159 @@ class signalPclient:
         # Everything entry that is longer than the threshold below will be discarded.
         self.lineLengthThreshold = 9000
 
-        return
 
-
-
-    def submit(self):
 
         return
 
 
+    def submit( self ):
+
+        ## Parsing and filtering the input file
+        filtered_fasta = self.getFilteredFASTA( self.inputFileName )
+
+        ## Submitting the filtered databank
+        self.submit2( filtered_fasta )
+
+        return
 
 
-## Get the fasta name file from the command-line
-inputfilename = sys.argv[1]
-print 'Input fasta file: ', inputfilename
+    ##
+    ## Parsing the input file and filtering it
+    ##
 
-# Parsing the prefix of the input file to use it later
-parsedInputFile_prefix = inputfilename.split('.fast')[0]
+    # The following methods parse the input file and ensures
+    # the following criteria:
+    # > each protein has sequence_length < 6000
+    # > total of 2000 proteins in fasta file
 
-## Reading the input file
-print 'Loading fasta file...'
-f = Fasta(inputfilename)
+    #
+    #
+    #
+    def getFilteredFASTA(self, fasta_file):
+        protein_list = get_FASTA_array(fasta_file)
+        submission_list = generate_submission(protein_list)
+        FASTA_TO_SUBMIT = "".join(submission_list)
+        return FASTA_TO_SUBMIT
 
-## Getting all keys
-KEYS = sorted( f.keys() )
+    #
+    #This function parses fasta file into array (each protein is one element)
+    #
+    def getFastaArray(fasta_file):
+        #parsing FASTA
+        FASTA_string= open(fasta_file, 'r').read()
+        #rough list of proteins
+        protein_list= FASTA_string.split(">")
+        #loop to remove empty elements
+        while "" in protein_list:
+            protein_list.remove("")
+        #add header to each protein
+        new_protein_list = [">" + protein for protein in protein_list]
 
-records2Discard = {}
-goodRecords     = {}
-
-
-# We now split them into two dictionaries depedinding on their
-# size.
-for j in KEYS:
-    if len( f[j] ) > lineLengthThreshold:
-        records2Discard[ j ] = f[j]
-    else:
-        goodRecords[ j ] = f[j]
-
-# Writing back to hard disk our results
-filewLongRecords = open(parsedInputFile_prefix + '_discarded_longLines.fasta', 'w')
-for j in sorted(records2Discard.keys()):
-    filewLongRecords.write('>' + j + '\n')
-    filewLongRecords.write(str(records2Discard[j]) + '\n')
-filewLongRecords.close()
-
-
-# Since there's this limitation of 2000 proteins per file in
-# the server, we'll equaly distribute them into several files
-
-# Number of proteins
-numProteins = len( sorted(goodRecords.keys()) )
-
-# number of files
-numFiles    = int( math.ceil(
-                    float(numProteins) / float(numProteinsPerFile) )
-                    )
-
-print 'Number of auxiliary files: ', numFiles
-
-resultingFileNames = []
-
-# Creating each of the files
-for k in range(0, numFiles):
-
-    # Specific file name
-    resultingFileNames.append( parsedInputFile_prefix + '_SignalPclient_auxiliary_' + str(k) + '.fasta' )
-
-    # Creating the file
-    print 'Creating file ' + resultingFileNames[-1]
-    currFile = open( resultingFileNames[-1] , 'w')
-
-    # Iterating through the proteins that will be stored in currFile
-    for j in sorted(goodRecords.keys())[ numProteinsPerFile*k : numProteinsPerFile*(k+1) - 1 ]:
-        currFile.write('>' + j + '\n')
-        currFile.write(str(goodRecords[j]) + '\n')
-
-    # Closing the file
-    currFile.close()
+        return new_protein_list
 
 
+    #
+    # This method generates a new file ready to be submitted.
+    #
+    def generateSubmission( protein_list ):
 
-## Sending over the internet
+        #declare submission list
+        submission_list = []
+        total_AA_count = 0
 
-# For each file created in the last step, we want to submit to
-# the SignalP web app, wait for the results and save it in our
-# hard drive.
+        #loop through each protein and count AA and add to list of submissions
+        for protein in protein_list:
 
-kid = 0
-
-for filename in resultingFileNames:
-
-    inputFasta = open( filename , 'r' )
-    inforead = inputFasta.read()
-
-    ## Communicating with the SignalP server
-
-    # First steps...
-    print 'Accessing the web app and filling the form...'
-
-    # Going to the web app page
-    commands.go('http://www.cbs.dtu.dk/services/SignalP/')
-    print commands.showforms()
-
-    # Setting up a few options
-    commands.fv('2', 'SEQPASTE', inforead)
-    commands.fv('2', 12, '')
-
-    # Submiting the appropriate form
-    print 'Submiting the form'
-    commands.submit('2')
-
-    # Guessing now the job id
-    a = commands.show()
-    print a
-    b = a.split('\n')[2]
-    jobid = b.split('of')[1].split('</span')[0].strip()
-
-    # Constructing the url with the results...
-    url2go = 'http://www.cbs.dtu.dk//cgi-bin/webface2.fcgi?jobid=' + jobid
-    print 'Our results are in ' + url2go + '\n\n'
-
-    # Waiting a bit for the results...
-    print 'Waiting some moments for the server to complete our request!'
-    time.sleep(5*60)
-
-    # This timing has actually two purposes: while the results are being
-    # calculated, the script will be quiet. But also, there will be some
-    # time after the results are ready so that the server won't go overloaded.
-    # Please, do not overload the server using this script!!
-
-    # Going after the results...
-    commands.go(url2go)
+            #parse individual protein to get sequence
+            single_protein = protein.split("\n")
+            #remove blanks
+            while "" in single_protein:
+                single_protein.remove("")
 
 
-    # Following the link for the result file
-    commands.follow('processed fasta entries')
+            ## COUNTING SEQUENCE LENGTH
 
-    # Saving the result in the hard drive
-    commands.save_html( parsedInputFile_prefix + '_SignalPclient_id' + str(kid) + '_RESULT.fasta' )
-    kid += 1
+            sequence_array = []
+            for element in single_protein[1:]:
+                sequence_array.append(element)
+
+            # get sequence length
+            sequence_string =  "".join(sequence_array)
+            sequence_length = len(sequence_string)
+            total_AA_count = total_AA_count + sequence_length
+
+            ## FILTERING STEPS
+
+            if sequence_length < 6000:
+                submission_list.append(protein)
+            #count total AA and stop if > 200,000
+            if total_AA_count > 199999:
+                return submission_list
+            #count the number of proteins and check if lower than 2,000
+            if len(submission_list)>1999:
+                return submission_list
+
+        return -1
 
 
+    ##
+    ## Accessing the server and submiting the job
+    ##
+
+    def submit2( generatedFile ):
+
+        ## Accessing signalP Server's home page
+        # Creating a browser object
+        self.browser = mechanicalsoup.StatefulBrowser()
+        # Setting the address
+        self.browser.open( 'http://www.cbs.dtu.dk/services/SignalP/' )
+        # Selecting the form (nr=0 is a useless form)
+        browser.select_form( nr = 1 )
+        # Uploading input file
+        browser['SEQSUB'] = generatedFile
+
+        ## Submiting the file for analysis
+        browser.submit_selected()
+
+        ## Sleeping for 5min to wait for the results...
+        # -- this step needs to be improved: we should check
+        # for results every n seconds instead.
+        time.sleep(300)
+
+        # Open current page (becomes wait page) and
+        # extract URL with the analyses' results
+        resultsURL = str( browser.get_current_page().select('noscript') ).split()[7][6:-7]
+        # Accessing the webpage with the results
+        browser.open( resultsURL )
 
 
-# The end, my friend.
+        ## Extracting the signal peptides
+
+        # array to save the signal peptides found by signalP Server
+        results = []
+
+        # extract result lines, check if there is a signalling sequence, if yes, pass line to results
+        for res in browser.get_current_page().select('p'):
+            if 'YES' in str(res):
+                results.append(str(res).splitlines()[7])
+
+
+        # Save the output to file
+        with open(self.outputFileName, "w") as text_file:
+            text_file.write("Signal peptide positive: %s" % results)
+
+
+        ### -- this is a great idea, but we need to work on it
+        # # in case you are interested in all proteins
+        # total = []
+        # for res in browser.get_current_page().select('p'):
+        #     total.append(str(res).splitlines()[7])
+        #
+        # with open("OutputTotal.txt", "w") as text_file:
+        #     text_file.write("All: %s" % total)
+        ### --
+
+        return
+
+
+## The end, my friend.
